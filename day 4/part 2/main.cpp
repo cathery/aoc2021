@@ -144,15 +144,27 @@ int main()
 	// All of the data has been processed, let's play bingo
 	for (const auto& DrawnNumber : DrawnNumbers)
 	{
-		for (auto& Board : Boards)
+		for (auto It = Boards.begin(); It != Boards.end(); )
 		{
-			Board.MarkNumber(DrawnNumber);
+			auto& Board = *It;
 
+			Board.MarkNumber(DrawnNumber);
 			if (Board.IsWon())
 			{
 				WinningScore = Board.GetSumOfUnmarkedNumbers() * DrawnNumber;
+				Boards.erase(It);
+
+				if (Boards.size() > 0)
+				{
+					continue;
+				}
+
 				IsGameFinished = true;
 				break;
+			}
+			else
+			{
+				++It;
 			}
 		}
 
