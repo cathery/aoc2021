@@ -90,43 +90,23 @@ struct VentDiagram
 			MapX.resize(MaxX);
 		}
 
+		std::int8_t SignX = (Line.X1 < Line.X2) - (Line.X2 < Line.X1);
+		std::int8_t SignY = (Line.Y1 < Line.Y2) - (Line.Y2 < Line.Y1);
 
-		if (Line.IsHorizontal())
+		std::uint64_t Index = 0;
+		while (true)
 		{
-			const auto LineY = Line.Y1;
-			const auto BeginX = std::min(Line.X1, Line.X2);
-			const auto EndX = std::max(Line.X1, Line.X2);
-			for (std::uint64_t LineX = BeginX; LineX <= EndX; LineX++)
-			{
-				Map[LineY][LineX]++;
-			}
-		}
-		else if (Line.IsVertical())
-		{
-			const auto LineX = Line.X1;
-			const auto BeginY = std::min(Line.Y1, Line.Y2);
-			const auto EndY = std::max(Line.Y1, Line.Y2);
-			for (std::uint64_t LineY = BeginY; LineY <= EndY; LineY++)
-			{
-				Map[LineY][LineX]++;
-			}
-		}
-		else if (Line.IsOrdinal())
-		{
-			std::uint64_t Index = 0;
-			while(true)
-			{
-				const auto LineY = Line.Y1 > Line.Y2 ? Line.Y1 - Index : Line.Y1 + Index;
-				const auto LineX = Line.X1 > Line.X2 ? Line.X1 - Index : Line.X1 + Index;
-				Map[LineY][LineX]++;
+			std::uint64_t LineY = Line.Y1 + (Index * SignY);
+			std::uint64_t LineX = Line.X1 + (Index * SignX);
 
-				if (LineY == Line.Y2)
-				{
-					break;
-				}
+			Map[LineY][LineX]++;
 
-				Index++;
+			if (LineY == Line.Y2 && LineX == Line.X2)
+			{
+				break;
 			}
+
+			Index++;
 		}
 	}
 
