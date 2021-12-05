@@ -1,4 +1,5 @@
 *.exe
 *.o
 input.txt
+output.txt
 .vscode/settings.json
