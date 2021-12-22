@@ -28,24 +28,24 @@ int main()
 	std::size_t Player1UniversesWon = 0;
 	std::size_t Player2UniversesWon = 0;
 
-	// GameStates[Player1Position][Player1Score][Player2Position][Player2Score] = Number Of Universes in this game state
-	std::array<std::array<std::array<std::array<std::size_t, ScoreToWin+1>, HighestPosition+1>, ScoreToWin+1>, HighestPosition+1> GameStates{};
-	std::array<std::array<std::array<std::array<std::size_t, ScoreToWin+1>, HighestPosition+1>, ScoreToWin+1>, HighestPosition+1> NextGameStates{};
+	// GameStates[Player1Score][Player2Score][Player1Position][Player2Position] = Number Of Universes in this game state
+	std::array<std::array<std::array<std::array<std::size_t, HighestPosition+1>, HighestPosition+1>, ScoreToWin+1>, ScoreToWin+1> GameStates{};
 
-	GameStates[Player1StartingPosition][0][Player2StartingPosition][0] = 1;
+
+	GameStates[0][0][Player1StartingPosition][Player2StartingPosition] = 1;
 	
 	bool IsPlayer1Turn = true;
 	while (true)
 	{
-		for (std::size_t Player1Position = LowestPosition; Player1Position != HighestPosition + 1; ++Player1Position)
+		for (std::size_t Player1Score = ScoreToWin; Player1Score-- != 0;)
 		{
-			for (std::size_t Player1Score = 0; Player1Score != ScoreToWin + 1; ++Player1Score)
+			for (std::size_t Player2Score = ScoreToWin; Player2Score-- != 0;)
 			{
-				for (std::size_t Player2Position = LowestPosition; Player2Position != HighestPosition + 1; ++Player2Position)
+				for (std::size_t Player1Position = LowestPosition; Player1Position != HighestPosition + 1; ++Player1Position)
 				{
-					for (std::size_t Player2Score = 0; Player2Score != ScoreToWin + 1; ++Player2Score)
+					for (std::size_t Player2Position = LowestPosition; Player2Position != HighestPosition + 1; ++Player2Position)
 					{
-						const std::size_t CurrentUniverseCount = GameStates[Player1Position][Player1Score][Player2Position][Player2Score];
+						const std::size_t CurrentUniverseCount = GameStates[Player1Score][Player2Score][Player1Position][Player2Position];
 
 						if (CurrentUniverseCount == 0)
 						{
@@ -70,7 +70,7 @@ int main()
 											continue;
 										}
 
-										NextGameStates[NewPlayer1Position][NewPlayer1Score][Player2Position][Player2Score] += CurrentUniverseCount;
+										GameStates[NewPlayer1Score][Player2Score][NewPlayer1Position][Player2Position] += CurrentUniverseCount;
 									}
 									else
 									{
@@ -83,18 +83,20 @@ int main()
 											continue;
 										}
 
-										NextGameStates[Player1Position][Player1Score][NewPlayer2Position][NewPlayer2Score] += CurrentUniverseCount;
+										GameStates[Player1Score][NewPlayer2Score][Player1Position][NewPlayer2Position] += CurrentUniverseCount;
 									}
 								}
 							}
 						}
+
+						GameStates[Player1Score][Player2Score][Player1Position][Player2Position] = 0;
 					}
 				}
 			}
 		}
 
 		bool bAreAllGamesFinished = true;
-		for (const auto& Player1Position : NextGameStates)
+		for (const auto& Player1Position : GameStates)
 		{
 			for (const auto& Player1Score : Player1Position)
 			{
@@ -114,8 +116,6 @@ int main()
 
 BREAKLOOP:
 		IsPlayer1Turn = !IsPlayer1Turn;
-		GameStates = NextGameStates;
-		NextGameStates = {};
 
 		if (bAreAllGamesFinished)
 		{
